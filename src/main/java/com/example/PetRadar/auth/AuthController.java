@@ -1,37 +1,55 @@
 package com.example.PetRadar.auth;
 
+import com.example.PetRadar.security.JwtTokenProvider;
+import com.example.PetRadar.user.User;
+import com.example.PetRadar.user.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.net.URLEncoder;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
 public class AuthController {
     private final JwtTokenProvider jwtTokenProvider;
+    private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody Map<String, String> requestMap) {
+        // UserService를 통해 사용자 정보를 데이터베이스에서 조회
         String id = requestMap.get("id");
         String pw = requestMap.get("pw");
-
-        // 실제로는 DB에서 사용자 인증을 처리해야 합니다.
-        if (!"asdf".equals(id) || !"1234".equals(pw)) {
-            Map<String, String> response = new HashMap<>();
-            response.put("message", "Invalid username or password");
-            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        Optional<User> userOptional = userService.findByLoginId(id);
+        // 사용자가 존재하지 않는 경우
+        if (userOptional.isEmpty()) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Invalid username or password");
+            return ResponseEntity.status(401).body(errorResponse);
         }
-
+        User user = userOptional.get();
+        // PasswordEncoder를 사용하여 비밀번호 비교
+        // 사용자가 입력한 평문 비밀번호와 DB의 암호화된 비밀번호를 비교
+        if (!passwordEncoder.matches(pw, user.getPwHash())) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Invalid username or password");
+            return ResponseEntity.status(401).body(errorResponse);
+        }
         // 액세스 토큰 생성
-        String accessToken = jwtTokenProvider.createAccessToken(id);
+        String accessToken = jwtTokenProvider.createAccessToken(String.valueOf(user.getId()));
         // 리프레시 토큰 생성
-        String refreshToken = jwtTokenProvider.createRefreshToken(id);
-
+        String refreshToken = jwtTokenProvider.createRefreshToken(String.valueOf(user.getId()));
         // 리프레시 토큰을 HttpOnly 쿠키로 설정
         ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)
@@ -39,11 +57,9 @@ public class AuthController {
                 .path("/api/auth")
                 .maxAge(jwtTokenProvider.getRefreshTokenExpSec())
                 .build();
-
         // 액세스 토큰은 JSON 응답으로, 리프레시 토큰은 쿠키 헤더에 담아 전송
         Map<String, String> response = new HashMap<>();
         response.put("accessToken", accessToken);
-
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(response);
@@ -52,15 +68,12 @@ public class AuthController {
     @PostMapping("/refresh-token")
     public ResponseEntity<Map<String, String>> refreshToken(@CookieValue(name = "refreshToken", required = false) String refreshToken) {
         Map<String, String> response = new HashMap<>();
-
         if (refreshToken == null || !jwtTokenProvider.validateRefreshToken(refreshToken)) {
             response.put("message", "Invalid or expired refresh token");
             return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
         }
-
         String userId = jwtTokenProvider.getUserIdFromToken(refreshToken);
         String newAccessToken = jwtTokenProvider.createAccessToken(userId);
-
         response.put("accessToken", newAccessToken);
         return ResponseEntity.ok(response);
     }

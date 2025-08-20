@@ -1,4 +1,4 @@
-package com.example.PetRadar.auth;
+package com.example.PetRadar.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
