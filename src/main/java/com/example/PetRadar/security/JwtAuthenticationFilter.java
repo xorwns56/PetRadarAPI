@@ -4,10 +4,13 @@ import com.example.PetRadar.user.User;
 import com.example.PetRadar.user.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -17,9 +20,14 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -33,26 +41,49 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String bearerToken = request.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             String accessToken = bearerToken.substring(7);
-            if (jwtTokenProvider.validateAccessToken(accessToken)) {
-                String userId = jwtTokenProvider.getUserIdFromToken(accessToken);
-                User user = userService.findById(Long.parseLong(userId))
-                        .orElseThrow(() -> new UsernameNotFoundException(userId));
-
-                //에러 시 전부 401처리하자
-
-                UserDetails userDetails = new org.springframework.security.core.userdetails.User(
-                        String.valueOf(user.getId()),
-                        user.getPwHash(),
-                        Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
-                );
-                // 인증 객체(Authentication) 생성
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities());
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                // SecurityContext에 인증 정보 저장
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+            try {
+                if (jwtTokenProvider.validateAccessToken(accessToken)) {
+                    authenticate(accessToken, request);
+                } else {
+                    String refreshToken = extractRefreshTokenFromCookie(request);
+                    if (refreshToken != null && jwtTokenProvider.validateRefreshToken(refreshToken)) {
+                        String userId = jwtTokenProvider.getUserIdFromRefreshToken(refreshToken);
+                        String newAccessToken = jwtTokenProvider.createAccessToken(userId);
+                        response.setHeader("Authorization", newAccessToken);
+                        authenticate(newAccessToken, request);
+                    }
+                }
+            }catch(Exception e){
+                System.out.println("인증 실패: " + e.getMessage());
             }
         }
         filterChain.doFilter(request, response);
+    }
+
+    private String extractRefreshTokenFromCookie(HttpServletRequest request) {
+        if (request.getCookies() == null) {
+            return null;
+        }
+        for (Cookie cookie : request.getCookies()) {
+            if ("refreshToken".equals(cookie.getName())) {
+                return cookie.getValue();
+            }
+        }
+        return null;
+    }
+
+    private void authenticate(String accessToken, HttpServletRequest request) {
+        String userId = jwtTokenProvider.getUserIdFromAccessToken(accessToken);
+        User user = userService.findById(Long.parseLong(userId))
+                .orElseThrow(() -> new UsernameNotFoundException(userId));
+        UserDetails userDetails = new org.springframework.security.core.userdetails.User(
+                String.valueOf(user.getId()),
+                user.getPwHash(),
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
+        );
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                userDetails, null, userDetails.getAuthorities());
+        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 }

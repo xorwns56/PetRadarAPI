@@ -54,7 +54,7 @@ public class AuthController {
         ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)
                 //.secure(true) // HTTPS 환경에서만 전송, 개발환경이 HTTP이므로 임시 주석처리
-                .path("/api/auth")
+                .path("/api")
                 .maxAge(jwtTokenProvider.getRefreshTokenExpSec())
                 .build();
         // 액세스 토큰은 JSON 응답으로, 리프레시 토큰은 쿠키 헤더에 담아 전송
@@ -63,18 +63,5 @@ public class AuthController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(response);
-    }
-
-    @PostMapping("/refresh-token")
-    public ResponseEntity<Map<String, String>> refreshToken(@CookieValue(name = "refreshToken", required = false) String refreshToken) {
-        Map<String, String> response = new HashMap<>();
-        if (refreshToken == null || !jwtTokenProvider.validateRefreshToken(refreshToken)) {
-            response.put("message", "Invalid or expired refresh token");
-            return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
-        }
-        String userId = jwtTokenProvider.getUserIdFromToken(refreshToken);
-        String newAccessToken = jwtTokenProvider.createAccessToken(userId);
-        response.put("accessToken", newAccessToken);
-        return ResponseEntity.ok(response);
     }
 }

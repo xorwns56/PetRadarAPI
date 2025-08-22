@@ -15,11 +15,10 @@ public class UserService {
 
     @Transactional
     public void registerUser(UserRegisterDTO userRegisterDto) {
-        User user = User.builder()
-                .loginId(userRegisterDto.getId())
-                .hp(userRegisterDto.getHp())
-                .pwHash(passwordEncoder.encode(userRegisterDto.getPw()))
-                .build();
+        User user = new User();
+        user.setLoginId(userRegisterDto.getId());
+        user.setHp(userRegisterDto.getHp());
+        user.setPwHash(passwordEncoder.encode(userRegisterDto.getPw()));
         userRepository.save(user);
     }
 
