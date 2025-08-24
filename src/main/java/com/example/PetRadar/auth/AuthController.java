@@ -2,7 +2,9 @@ package com.example.PetRadar.auth;
 
 import com.example.PetRadar.security.JwtTokenProvider;
 import com.example.PetRadar.user.User;
+import com.example.PetRadar.user.UserRegisterDTO;
 import com.example.PetRadar.user.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -63,5 +65,17 @@ public class AuthController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(response);
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<Void> register(@RequestBody @Valid UserRegisterDTO userRegisterDTO) {
+        userService.registerUser(userRegisterDTO);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/check-exist")
+    public ResponseEntity<Boolean> checkExist(@RequestParam String id) {
+        boolean isExist = userService.findByLoginId(id).isPresent();
+        return ResponseEntity.ok(isExist);
     }
 }

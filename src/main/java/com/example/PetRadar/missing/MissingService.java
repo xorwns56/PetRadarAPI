@@ -5,6 +5,9 @@ import com.example.PetRadar.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class MissingService {
@@ -28,5 +31,47 @@ public class MissingService {
         missing.setTitle(missingDTO.getTitle());
         missing.setContent(missingDTO.getContent());
         missingRepository.save(missing);
+    }
+
+    public List<MissingDTO> getMissingList() {
+        return missingRepository.findAll()
+                .stream()
+                .map(missing -> new MissingDTO(
+                        missing.getId(),
+                        missing.getUser().getId(),
+                        missing.getPetName(),
+                        missing.getPetType(),
+                        missing.getPetGender(),
+                        missing.getPetBreed(),
+                        missing.getPetAge(),
+                        missing.getPetMissingDate(),
+                        missing.getPetMissingPlace(),
+                        new MissingDTO.PetMissingPoint(missing.getLatitude(), missing.getLongitude()),
+                        missing.getPetImage(),
+                        missing.getTitle(),
+                        missing.getContent()
+                ))
+                .collect(Collectors.toList());
+
+    }
+
+    public MissingDetailDTO getMissingDetail(Long id) {
+        Missing missing = missingRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 게시글이 없습니다."));
+        return new MissingDetailDTO(
+                missing.getId(),
+                missing.getUser().getId(),
+                missing.getPetName(),
+                missing.getPetType(),
+                missing.getPetGender(),
+                missing.getPetBreed(),
+                missing.getPetAge(),
+                missing.getPetMissingDate(),
+                missing.getPetMissingPlace(),
+                new MissingDTO.PetMissingPoint(missing.getLatitude(), missing.getLongitude()),
+                missing.getPetImage(),
+                missing.getTitle(),
+                missing.getContent()
+        );
     }
 }

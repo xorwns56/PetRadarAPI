@@ -1,6 +1,7 @@
 package com.example.PetRadar.security;
 
 import com.example.PetRadar.user.User;
+import com.example.PetRadar.user.UserDTO;
 import com.example.PetRadar.user.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -54,7 +55,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     }
                 }
             }catch(Exception e){
-                System.out.println("인증 실패: " + e.getMessage());
+                e.printStackTrace();
             }
         }
         filterChain.doFilter(request, response);
@@ -74,11 +75,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private void authenticate(String accessToken, HttpServletRequest request) {
         String userId = jwtTokenProvider.getUserIdFromAccessToken(accessToken);
-        User user = userService.findById(Long.parseLong(userId))
-                .orElseThrow(() -> new UsernameNotFoundException(userId));
+        UserDTO userDTO = userService.findById(Long.parseLong(userId));
         UserDetails userDetails = new org.springframework.security.core.userdetails.User(
-                String.valueOf(user.getId()),
-                user.getPwHash(),
+                String.valueOf(userDTO.getId()),
+                "",
                 Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
         );
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(

@@ -18,7 +18,7 @@ public class JwtTokenProvider {
     private final Key refreshTokenKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
     // 액세스 토큰 유효 기간 (10분)
-    private static final long ACCESS_TOKEN_EXPIRATION = 1000 * 10; //1000 * 60 * 10;
+    private static final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 10;
     // 리프레시 토큰 유효 기간 (하루)
     private static final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24;
 

@@ -23,8 +23,10 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<User> findById(Long id) {
-        return userRepository.findById(id);
+    public UserDTO findById(Long id) {
+        return userRepository.findById(id) // Optional<User>를 반환
+                .map(user -> new UserDTO(user.getId(), user.getLoginId(), user.getHp())) // User를 UserDTO로 변환
+                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + id)); // 값이 없으면 예외 발생
     }
 
     @Transactional(readOnly = true)
