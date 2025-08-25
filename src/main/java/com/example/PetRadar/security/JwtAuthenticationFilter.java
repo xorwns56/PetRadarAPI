@@ -52,10 +52,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         String newAccessToken = jwtTokenProvider.createAccessToken(userId);
                         response.setHeader("Authorization", newAccessToken);
                         authenticate(newAccessToken, request);
+                    }else {
+                        response.sendError(HttpStatus.UNAUTHORIZED.value(), "Invalid refresh token");
+                        return;
                     }
                 }
-            }catch(Exception e){
-                e.printStackTrace();
+            }catch (Exception e) {
+                response.sendError(HttpStatus.UNAUTHORIZED.value(), "Authentication failed: " + e.getMessage());
+                return;
             }
         }
         filterChain.doFilter(request, response);

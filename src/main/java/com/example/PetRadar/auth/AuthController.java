@@ -29,14 +29,14 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody Map<String, String> requestMap) {
+    public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> requestMap) {
         // UserService를 통해 사용자 정보를 데이터베이스에서 조회
         String id = requestMap.get("id");
         String pw = requestMap.get("pw");
         Optional<User> userOptional = userService.findByLoginId(id);
         // 사용자가 존재하지 않는 경우
         if (userOptional.isEmpty()) {
-            Map<String, String> errorResponse = new HashMap<>();
+            Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("error", "Invalid username or password");
             return ResponseEntity.status(401).body(errorResponse);
         }
@@ -44,7 +44,7 @@ public class AuthController {
         // PasswordEncoder를 사용하여 비밀번호 비교
         // 사용자가 입력한 평문 비밀번호와 DB의 암호화된 비밀번호를 비교
         if (!passwordEncoder.matches(pw, user.getPwHash())) {
-            Map<String, String> errorResponse = new HashMap<>();
+            Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("error", "Invalid username or password");
             return ResponseEntity.status(401).body(errorResponse);
         }
@@ -60,8 +60,9 @@ public class AuthController {
                 .maxAge(jwtTokenProvider.getRefreshTokenExpSec())
                 .build();
         // 액세스 토큰은 JSON 응답으로, 리프레시 토큰은 쿠키 헤더에 담아 전송
-        Map<String, String> response = new HashMap<>();
+        Map<String, Object> response = new HashMap<>();
         response.put("accessToken", accessToken);
+        response.put("userId", user.getId());
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(response);
