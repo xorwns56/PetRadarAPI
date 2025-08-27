@@ -62,7 +62,6 @@ public class AuthController {
         // 액세스 토큰은 JSON 응답으로, 리프레시 토큰은 쿠키 헤더에 담아 전송
         Map<String, Object> response = new HashMap<>();
         response.put("accessToken", accessToken);
-        response.put("userId", user.getId());
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(response);

@@ -50,7 +50,7 @@ public class Missing{
     @Column(columnDefinition = "DECIMAL(11, 8)")
     private Double longitude;
 
-    @Column(length = 255)
+    @Lob
     private String petImage;
 
     @Column(nullable = false, length = 100)
