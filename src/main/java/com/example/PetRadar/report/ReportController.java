@@ -2,6 +2,9 @@ package com.example.PetRadar.report;
 
 import com.example.PetRadar.missing.MissingDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,9 +32,9 @@ public class ReportController {
     }
 
     @GetMapping("/missing/{missingId}")
-    public ResponseEntity<List<ReportDTO>> getReportsByMissingId(@PathVariable Long missingId) {
-        List<ReportDTO> reports = reportService.getReportsByMissingId(missingId);
-        return ResponseEntity.ok(reports);
+    public ResponseEntity<Page<ReportDTO>> getReportsByMissingId(@PathVariable Long missingId, @PageableDefault() Pageable pageable) {
+        Page<ReportDTO> reportPage = reportService.getReportsByMissingId(missingId, pageable);
+        return ResponseEntity.ok(reportPage);
     }
 
 }

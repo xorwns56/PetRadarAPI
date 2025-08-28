@@ -1,9 +1,10 @@
 package com.example.PetRadar.report;
 
-import com.example.PetRadar.missing.Missing;
 import com.example.PetRadar.missing.MissingRepository;
 import com.example.PetRadar.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,8 +22,9 @@ public class ReportService {
         return reportOptional.map(ReportDTO::new).orElse(null);
     }
 
-    public List<ReportDTO> getReportsByMissingId(Long missingId) {
-        return reportRepository.findByMissingId(missingId).stream().map(ReportDTO::new).toList();
+    public Page<ReportDTO> getReportsByMissingId(Long missingId, Pageable pageable) {
+        Page<Report> reportPage = reportRepository.findByMissingId(missingId, pageable);
+        return reportPage.map(ReportDTO::new);
     }
 
     public void createReport(Long userId, Long missingId, ReportDTO reportDTO) {
