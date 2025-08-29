@@ -3,6 +3,8 @@ package com.example.PetRadar.missing;
 import com.example.PetRadar.user.User;
 import com.example.PetRadar.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,8 +35,8 @@ public class MissingService {
         missingRepository.save(missing);
     }
 
-    public List<MissingDTO> getMissingList() {
-        return missingRepository.findAll()
+    public List<MissingDTO> getMissingList(Pageable pageable) {
+        return missingRepository.findAll(pageable)
                 .stream()
                 .map(missing -> new MissingDTO(
                         missing.getId(),
@@ -53,6 +55,27 @@ public class MissingService {
                 ))
                 .collect(Collectors.toList());
 
+    }
+
+    public List<MissingDTO> getMissingList(Long userId, Sort sort){
+        return missingRepository.findByUserId(userId, sort)
+                .stream()
+                .map(missing -> new MissingDTO(
+                        missing.getId(),
+                        missing.getUser().getId(),
+                        missing.getPetName(),
+                        missing.getPetType(),
+                        missing.getPetGender(),
+                        missing.getPetBreed(),
+                        missing.getPetAge(),
+                        missing.getPetMissingDate(),
+                        missing.getPetMissingPlace(),
+                        new MissingDTO.PetMissingPoint(missing.getLatitude(), missing.getLongitude()),
+                        missing.getPetImage(),
+                        missing.getTitle(),
+                        missing.getContent()
+                ))
+                .collect(Collectors.toList());
     }
 
     public MissingDetailDTO getMissingDetail(Long id) {

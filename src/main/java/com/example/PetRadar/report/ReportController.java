@@ -32,7 +32,7 @@ public class ReportController {
     }
 
     @GetMapping("/missing/{missingId}")
-    public ResponseEntity<Page<ReportDTO>> getReportsByMissingId(@PathVariable Long missingId, @PageableDefault() Pageable pageable) {
+    public ResponseEntity<Page<ReportDTO>> getReportsByMissingId(@PathVariable Long missingId, Pageable pageable) {
         Page<ReportDTO> reportPage = reportService.getReportsByMissingId(missingId, pageable);
         return ResponseEntity.ok(reportPage);
     }

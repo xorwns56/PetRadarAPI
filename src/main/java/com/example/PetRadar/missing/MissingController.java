@@ -1,6 +1,10 @@
 package com.example.PetRadar.missing;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.SortDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,8 +20,14 @@ public class MissingController {
     private final MissingService missingService;
 
     @GetMapping
-    public ResponseEntity<List<MissingDTO>> getMissingList() {
-        List<MissingDTO> missingList = missingService.getMissingList();
+    public ResponseEntity<List<MissingDTO>> getMissingList(@PageableDefault Pageable pageable) { //추후 수정
+        List<MissingDTO> missingList = missingService.getMissingList(pageable);
+        return ResponseEntity.ok(missingList);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<List<MissingDTO>> getMissingList(@AuthenticationPrincipal UserDetails userDetails, @SortDefault(sort = "createdAt", direction = Sort.Direction.DESC) Sort sort) {
+        List<MissingDTO> missingList = missingService.getMissingList(Long.parseLong(userDetails.getUsername()), sort);
         return ResponseEntity.ok(missingList);
     }
 
