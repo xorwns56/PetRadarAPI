@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/user") // or /api/users (recommended)
+@RequestMapping("/api/user")
 public class UserController {
     private final UserService userService;
 
@@ -31,4 +31,12 @@ public class UserController {
         }
         return ResponseEntity.ok().build();
     }
+
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> deleteUser(@AuthenticationPrincipal UserDetails userDetails) {
+        Long userId = Long.parseLong(userDetails.getUsername());
+        userService.deleteUser(userId);
+        return ResponseEntity.ok().build();
+    }
+
 }

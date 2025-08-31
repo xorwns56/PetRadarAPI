@@ -43,4 +43,16 @@ public class MissingController {
         return ResponseEntity.ok().build();
     }
 
+    @PatchMapping("/{id}")
+    public ResponseEntity<Void> updateMissing(@PathVariable Long id, @RequestBody MissingDTO missingDTO, @AuthenticationPrincipal UserDetails userDetails){
+        missingService.updateMissing(id, missingDTO, Long.parseLong(userDetails.getUsername()));
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteMissing(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
+        missingService.deleteMissing(id, Long.parseLong(userDetails.getUsername()));
+        return ResponseEntity.ok().build();
+    }
+
 }

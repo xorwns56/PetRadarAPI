@@ -1,5 +1,6 @@
 package com.example.PetRadar.missing;
 
+import com.example.PetRadar.report.Report;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -7,6 +8,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 import com.example.PetRadar.user.User;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -22,6 +25,9 @@ public class Missing{
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @OneToMany(mappedBy = "missing", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Report> reports = new ArrayList<>();
 
     @Column(nullable = false, length = 50)
     private String petName;

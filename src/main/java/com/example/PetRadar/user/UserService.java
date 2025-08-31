@@ -1,5 +1,6 @@
 package com.example.PetRadar.user;
 
+import com.example.PetRadar.missing.Missing;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -57,5 +58,11 @@ public class UserService {
             user.setPwHash(passwordEncoder.encode(userRegisterDTO.getPw()));
         }
         userRepository.save(user);
+    }
+
+    public void deleteUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found."));
+        userRepository.delete(user);
     }
 }

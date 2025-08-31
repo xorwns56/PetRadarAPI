@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -96,5 +97,35 @@ public class MissingService {
                 missing.getTitle(),
                 missing.getContent()
         );
+    }
+
+    public void deleteMissing(Long missingId, Long userId) {
+        Missing missing = missingRepository.findById(missingId)
+                .orElseThrow(() -> new IllegalArgumentException("Missing report not found."));
+        if (!missing.getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException("You are not authorized to delete this missing report.");
+        }
+        missingRepository.delete(missing);
+    }
+
+    public void updateMissing(Long id, MissingDTO missingDTO, long userId) {
+        Missing missing = missingRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Missing post not found."));
+        if (!missing.getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException("You are not authorized to update this post.");
+        }
+        missing.setPetName(missingDTO.getPetName());
+        missing.setPetType(missingDTO.getPetType());
+        missing.setPetGender(missingDTO.getPetGender());
+        missing.setPetBreed(missingDTO.getPetBreed());
+        missing.setPetAge(missingDTO.getPetAge());
+        missing.setPetMissingDate(missingDTO.getPetMissingDate());
+        missing.setPetMissingPlace(missingDTO.getPetMissingPlace());
+        missing.setLatitude(missingDTO.getPetMissingPoint().getLat());
+        missing.setLongitude(missingDTO.getPetMissingPoint().getLng());
+        missing.setPetImage(missingDTO.getPetImage());
+        missing.setTitle(missingDTO.getTitle());
+        missing.setContent(missingDTO.getContent());
+        missingRepository.save(missing);
     }
 }

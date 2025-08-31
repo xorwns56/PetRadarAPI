@@ -30,7 +30,7 @@ public class ReportDTO {
     public ReportDTO(Report report) {
         this.id = report.getId();
         this.petMissingId = report.getMissing().getId();
-        this.userId = report.getUser().getId();
+        this.userId = report.getUser() == null ? null : report.getUser().getId();
         this.title = report.getTitle();
         this.content = report.getContent();
         this.petImage = report.getPetImage();

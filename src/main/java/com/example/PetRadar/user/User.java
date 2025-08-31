@@ -1,11 +1,14 @@
 package com.example.PetRadar.user;
 
+import com.example.PetRadar.missing.Missing;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -34,6 +37,9 @@ public class User {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Missing> missings = new ArrayList<>();
 
     /*
     // User 엔티티가 소유한 OAuthAccount 목록을 매핑합니다.
