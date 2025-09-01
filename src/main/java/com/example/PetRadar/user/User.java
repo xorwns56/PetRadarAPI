@@ -1,6 +1,7 @@
 package com.example.PetRadar.user;
 
 import com.example.PetRadar.missing.Missing;
+import com.example.PetRadar.notification.Notification;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -40,6 +41,9 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Missing> missings = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Notification> notifications = new ArrayList<>();
 
     /*
     // User 엔티티가 소유한 OAuthAccount 목록을 매핑합니다.
