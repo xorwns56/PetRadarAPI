@@ -20,8 +20,8 @@ public class MissingController {
     private final MissingService missingService;
 
     @GetMapping
-    public ResponseEntity<List<MissingDTO>> getMissingList(@PageableDefault Pageable pageable) { //추후 수정
-        List<MissingDTO> missingList = missingService.getMissingList(pageable);
+    public ResponseEntity<List<MissingDTO>> getMissingList(@SortDefault(sort = "createdAt", direction = Sort.Direction.DESC) Sort sort) { //추후 수정
+        List<MissingDTO> missingList = missingService.getMissingList(sort);
         return ResponseEntity.ok(missingList);
     }
 
@@ -32,20 +32,20 @@ public class MissingController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<MissingDetailDTO> getMissingDetail(@PathVariable Long id) {
-        MissingDetailDTO detail = missingService.getMissingDetail(id);
+    public ResponseEntity<MissingDTO> getMissingDetail(@PathVariable Long id) {
+        MissingDTO detail = missingService.getMissingDetail(id);
         return ResponseEntity.ok(detail);
     }
 
     @PostMapping
-    public ResponseEntity<Void> createMissing(@RequestBody MissingDTO missingDTO, @AuthenticationPrincipal UserDetails userDetails) {
-        missingService.createMissing(Long.parseLong(userDetails.getUsername()), missingDTO);
+    public ResponseEntity<Void> createMissing(@RequestBody Missing missing, @AuthenticationPrincipal UserDetails userDetails) {
+        missingService.createMissing(Long.parseLong(userDetails.getUsername()), missing);
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Void> updateMissing(@PathVariable Long id, @RequestBody MissingDTO missingDTO, @AuthenticationPrincipal UserDetails userDetails){
-        missingService.updateMissing(id, missingDTO, Long.parseLong(userDetails.getUsername()));
+    public ResponseEntity<Void> updateMissing(@PathVariable Long id, @RequestBody Missing missing, @AuthenticationPrincipal UserDetails userDetails){
+        missingService.updateMissing(id, missing, Long.parseLong(userDetails.getUsername()));
         return ResponseEntity.ok().build();
     }
 

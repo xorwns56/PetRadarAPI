@@ -27,14 +27,24 @@ public class ReportDTO {
         private Double lng;
     }
 
-    public ReportDTO(Report report) {
-        this.id = report.getId();
-        this.petMissingId = report.getMissing().getId();
-        this.userId = report.getUser() == null ? null : report.getUser().getId();
-        this.title = report.getTitle();
-        this.content = report.getContent();
-        this.petImage = report.getPetImage();
-        this.petReportPlace = report.getPetReportPlace();
-        this.petReportPoint = new PetReportPoint(report.getLatitude(), report.getLongitude());
+    public static ReportDTO from(Report report) {
+        Long userId = null;
+        if(report.getUser() != null){
+            userId = report.getUser().getId();
+        }
+        PetReportPoint point = null;
+        if (report.getLatitude() != null && report.getLongitude() != null) {
+            point = new PetReportPoint(report.getLatitude(), report.getLongitude());
+        }
+        return new ReportDTO(
+                report.getId(),
+                report.getMissing().getId(),
+                userId,
+                report.getPetReportPlace(),
+                point,
+                report.getPetImage(),
+                report.getTitle(),
+                report.getContent()
+        );
     }
 }

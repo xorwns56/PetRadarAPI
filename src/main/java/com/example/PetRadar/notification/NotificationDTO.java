@@ -12,7 +12,22 @@ import lombok.ToString;
 @ToString
 public class NotificationDTO {
     private Long id;
-    private User user;
+    private String receiverId;
+    private String senderId;
     private String postType;
     private Long postId;
+
+    public static NotificationDTO from(Notification notification) {
+        String senderId = null;
+        if(notification.getSender() != null){
+            senderId = notification.getSender().getLoginId();
+        }
+        return new NotificationDTO(
+                notification.getId(),
+                notification.getReceiver().getLoginId(),
+                senderId,
+                notification.getPostType(),
+                notification.getPostId()
+        );
+    }
 }

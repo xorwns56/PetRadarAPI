@@ -28,7 +28,7 @@ public class User {
     @Column(unique = true, nullable = false)
     private String hp;
 
-    @Column(name = "pw_hash")
+    @Column(name = "pw_hash", nullable = false)
     private String pwHash;
 
     @CreationTimestamp
@@ -45,10 +45,4 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Notification> notifications = new ArrayList<>();
 
-    /*
-    // User 엔티티가 소유한 OAuthAccount 목록을 매핑합니다.
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OAuthAccount> oauthAccounts;
-
-     */
 }

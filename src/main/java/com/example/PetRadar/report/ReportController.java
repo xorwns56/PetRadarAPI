@@ -1,6 +1,5 @@
 package com.example.PetRadar.report;
 
-import com.example.PetRadar.missing.MissingDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,8 +25,8 @@ public class ReportController {
     }
 
     @PostMapping("/missing/{missingId}")
-    public ResponseEntity<Void> createReport(@PathVariable Long missingId, @RequestBody ReportDTO reportDTO, @AuthenticationPrincipal UserDetails userDetails) {
-        reportService.createReport(userDetails != null ? Long.parseLong(userDetails.getUsername()) : null, missingId, reportDTO);
+    public ResponseEntity<Void> createReport(@PathVariable Long missingId, @AuthenticationPrincipal UserDetails userDetails, @RequestBody Report report) {
+        reportService.createReport(userDetails != null ? Long.parseLong(userDetails.getUsername()) : null, missingId, report);
         return ResponseEntity.ok().build();
     }
 

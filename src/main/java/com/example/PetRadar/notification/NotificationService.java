@@ -1,13 +1,11 @@
 package com.example.PetRadar.notification;
 
-import com.example.PetRadar.missing.MissingDTO;
-import com.example.PetRadar.sse.SseRepository;
+import com.example.PetRadar.user.User;
 import com.example.PetRadar.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,41 +14,37 @@ import java.util.stream.Collectors;
 public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
-    private final SseRepository sseRepository;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
-    public void createNotification(Long userId, String postType, Long postId) {
+    public void createNotificationToUser(Long senderId, Long receiverId, String postType, Long postId) {
+        User sender = null;
+        if (senderId != null) {
+            sender = userRepository.findById(senderId)
+                    .orElse(null);
+        }
+        User receiver = userRepository.findById(receiverId)
+                .orElseThrow(() -> new IllegalArgumentException("Receiver not found with ID: " + receiverId));
         Notification notification = new Notification();
-        notification.setUser(userRepository.getReferenceById(userId));
+        notification.setSender(sender);
+        notification.setReceiver(receiver);
         notification.setPostType(postType);
         notification.setPostId(postId);
-
-        //여기서 sendNewPostNotification 추가
-
+        simpMessagingTemplate.convertAndSendToUser(String.valueOf(receiverId), "/queue/notification", NotificationDTO.from(notification));
         notificationRepository.save(notification);
     }
 
-    public List<NotificationDTO> findByUserId(Long userId) {
-        return notificationRepository.findByUserId(userId).stream().map(
-                notification -> new NotificationDTO(
-                        notification.getId(),
-                        notification.getUser(),
-                        notification.getPostType(),
-                        notification.getPostId()
-                )
-        ).collect(Collectors.toList());
-    }
-
-    public void sendNewPostNotification(Long userId, String message) {
-        SseEmitter emitter = sseRepository.get(userId);
-        if (emitter != null) {
-            try {
-                emitter.send(SseEmitter.event()
-                        .name("newPost")
-                        .data(message));
-            } catch (IOException e) {
-                emitter.completeWithError(e);
-                sseRepository.delete(userId);
-            }
+    @Async
+    public void createNotificationToAllUsers(Long senderId, String postType, Long postId) {
+        List<User> allUsers = userRepository.findAll();
+        for (User user : allUsers) {
+            createNotificationToUser(senderId, user.getId(), postType, postId);
         }
     }
+
+    public List<NotificationDTO> findByReceiverId(Long receiverId) {
+        return notificationRepository.findByReceiverId(receiverId).stream()
+                .map(NotificationDTO::from)
+                .collect(Collectors.toList());
+    }
+
 }

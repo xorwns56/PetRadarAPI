@@ -1,5 +1,6 @@
 package com.example.PetRadar.user;
 
+import com.example.PetRadar.auth.AuthDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,10 +23,10 @@ public class UserController {
     }
 
     @PatchMapping("/me")
-    public ResponseEntity<String> updateUser(@AuthenticationPrincipal UserDetails userDetails, @RequestBody UserRegisterDTO userRegisterDTO) {
+    public ResponseEntity<String> updateUser(@AuthenticationPrincipal UserDetails userDetails, @RequestBody AuthDTO authDTO) {
         try {
             Long userId = Long.parseLong(userDetails.getUsername());
-            userService.updateUser(userId, userRegisterDTO);
+            userService.updateUser(userId, authDTO);
         }catch(IllegalArgumentException e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }

@@ -29,22 +29,21 @@ public class Missing{
     @OneToMany(mappedBy = "missing", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Report> reports = new ArrayList<>();
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false)
     private String petName;
 
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false)
     private String petType;
 
-    @Column(nullable = false, length = 10)
+    @Column(nullable = false)
     private String petGender;
 
-    @Column(nullable = false, length = 50)
     private String petBreed;
 
-    @Column(length = 20)
+    @Column(nullable = false)
     private String petAge;
 
-    @Column(nullable = false, length = 10) // String 타입으로 변경
+    @Column(nullable = false)
     private String petMissingDate;
 
     @Column(nullable = false)
@@ -59,7 +58,7 @@ public class Missing{
     @Lob
     private String petImage;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false)
     private String title;
 
     @Column(nullable = false, columnDefinition = "TEXT")

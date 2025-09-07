@@ -28,5 +28,27 @@ public class MissingDTO {
         private Double lat;
         private Double lng;
     }
+
+    public static MissingDTO from(Missing missing) {
+        PetMissingPoint point = null;
+        if (missing.getLatitude() != null && missing.getLongitude() != null) {
+            point = new PetMissingPoint(missing.getLatitude(), missing.getLongitude());
+        }
+        return new MissingDTO(
+                missing.getId(),
+                missing.getUser().getId(),
+                missing.getPetName(),
+                missing.getPetType(),
+                missing.getPetGender(),
+                missing.getPetBreed(),
+                missing.getPetAge(),
+                missing.getPetMissingDate(),
+                missing.getPetMissingPlace(),
+                point,
+                missing.getPetImage(),
+                missing.getTitle(),
+                missing.getContent()
+        );
+    }
 }
 

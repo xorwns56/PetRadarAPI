@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -21,10 +20,15 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // User 엔티티와의 N:1(다대일) 연관관계 설정
+    // 알림을 받는 사용자
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id") // DB 컬럼명을 지정
-    private User user;
+    @JoinColumn(name = "receiver_id") // DB 컬럼명을 지정
+    private User receiver;
+
+    // 알림을 보낸 사용자 (sender)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sender_id")
+    private User sender;
 
     @Column(nullable = false)
     private String postType;

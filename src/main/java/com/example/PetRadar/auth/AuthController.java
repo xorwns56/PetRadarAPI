@@ -2,23 +2,16 @@ package com.example.PetRadar.auth;
 
 import com.example.PetRadar.security.JwtTokenProvider;
 import com.example.PetRadar.user.User;
-import com.example.PetRadar.user.UserRegisterDTO;
 import com.example.PetRadar.user.UserService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
-import java.net.URLEncoder;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Optional;
-import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,11 +22,8 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> requestMap) {
-        // UserService를 통해 사용자 정보를 데이터베이스에서 조회
-        String id = requestMap.get("id");
-        String pw = requestMap.get("pw");
-        Optional<User> userOptional = userService.findByLoginId(id);
+    public ResponseEntity<Map<String, Object>> login(@RequestBody AuthDTO authDTO) {
+        Optional<User> userOptional = userService.findByLoginId(authDTO.getId());
         // 사용자가 존재하지 않는 경우
         if (userOptional.isEmpty()) {
             Map<String, Object> errorResponse = new HashMap<>();
@@ -43,7 +33,7 @@ public class AuthController {
         User user = userOptional.get();
         // PasswordEncoder를 사용하여 비밀번호 비교
         // 사용자가 입력한 평문 비밀번호와 DB의 암호화된 비밀번호를 비교
-        if (!passwordEncoder.matches(pw, user.getPwHash())) {
+        if (!passwordEncoder.matches(authDTO.getPw(), user.getPwHash())) {
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("error", "Invalid username or password");
             return ResponseEntity.status(401).body(errorResponse);
@@ -68,8 +58,8 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Void> register(@RequestBody @Valid UserRegisterDTO userRegisterDTO) {
-        userService.registerUser(userRegisterDTO);
+    public ResponseEntity<Void> register(@RequestBody AuthDTO authDTO) {
+        userService.registerUser(authDTO);
         return ResponseEntity.ok().build();
     }
 
