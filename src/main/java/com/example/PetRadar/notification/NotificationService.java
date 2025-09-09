@@ -29,14 +29,15 @@ public class NotificationService {
         notification.setReceiver(receiver);
         notification.setPostType(postType);
         notification.setPostId(postId);
-        simpMessagingTemplate.convertAndSendToUser(String.valueOf(receiverId), "/queue/notification", NotificationDTO.from(notification));
         notificationRepository.save(notification);
+        simpMessagingTemplate.convertAndSendToUser(String.valueOf(receiverId), "/queue/notification", NotificationDTO.from(notification));
     }
 
     @Async
     public void createNotificationToAllUsers(Long senderId, String postType, Long postId) {
         List<User> allUsers = userRepository.findAll();
         for (User user : allUsers) {
+            if(user.getId().equals(senderId)) continue;
             createNotificationToUser(senderId, user.getId(), postType, postId);
         }
     }

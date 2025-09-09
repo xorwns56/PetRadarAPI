@@ -42,7 +42,10 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Missing> missings = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private List<Notification> notifications = new ArrayList<>();
+    @OneToMany(mappedBy = "sender", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Notification> sentNotifications = new ArrayList<>();
+
+    @OneToMany(mappedBy = "receiver", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Notification> receivedNotifications = new ArrayList<>();
 
 }
