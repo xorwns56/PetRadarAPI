@@ -11,8 +11,6 @@ import java.util.Map;
 public class CustomHandshakeHandler extends DefaultHandshakeHandler {
     @Override
     protected Principal determineUser(ServerHttpRequest request, WebSocketHandler wsHandler, Map<String, Object> attributes) {
-        System.out.println(SecurityContextHolder.getContext().getAuthentication().getName());
-        System.out.println("Principal : " + request.getPrincipal());
         return request.getPrincipal();
     }
 }

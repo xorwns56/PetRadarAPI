@@ -43,9 +43,19 @@ public class NotificationService {
     }
 
     public List<NotificationDTO> findByReceiverId(Long receiverId) {
-        return notificationRepository.findByReceiverId(receiverId).stream()
+        return notificationRepository.findByReceiverIdOrderByCreatedAtDesc(receiverId).stream()
                 .map(NotificationDTO::from)
                 .collect(Collectors.toList());
     }
+
+    public void deleteNotification(Long receiverId, Long notificationId) {
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new IllegalArgumentException("Notification not found with ID: " + notificationId));
+        if (!notification.getReceiver().getId().equals(receiverId)) {
+            throw new IllegalArgumentException("Notification does not belong to this user");
+        }
+        notificationRepository.delete(notification);
+    }
+
 
 }

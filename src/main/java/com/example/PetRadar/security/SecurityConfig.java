@@ -24,7 +24,6 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/api/ws").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/missing").authenticated()
                         .anyRequest().permitAll()
                 )

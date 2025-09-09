@@ -20,7 +20,7 @@ public class MissingController {
     private final MissingService missingService;
 
     @GetMapping
-    public ResponseEntity<List<MissingDTO>> getMissingList(@SortDefault(sort = "createdAt", direction = Sort.Direction.DESC) Sort sort) { //추후 수정
+    public ResponseEntity<List<MissingDTO>> getMissingList(@SortDefault(sort = "createdAt", direction = Sort.Direction.DESC) Sort sort) {
         List<MissingDTO> missingList = missingService.getMissingList(sort);
         return ResponseEntity.ok(missingList);
     }
