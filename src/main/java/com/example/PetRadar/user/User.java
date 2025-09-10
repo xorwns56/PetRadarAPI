@@ -25,7 +25,7 @@ public class User {
     @Column(name = "login_id", unique = true)
     private String loginId;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false) //@Column(unique = true, nullable = false)
     private String hp;
 
     @Column(name = "pw_hash", nullable = false)

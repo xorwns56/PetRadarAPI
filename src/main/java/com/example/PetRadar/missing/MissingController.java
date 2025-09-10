@@ -19,23 +19,15 @@ import java.util.Map;
 public class MissingController {
     private final MissingService missingService;
 
-    /*
     @GetMapping
-    public ResponseEntity<List<MissingDTO>> getMissingList(@SortDefault(sort = "createdAt", direction = Sort.Direction.DESC) Sort sort) {
-        List<MissingDTO> missingList = missingService.getMissingList(sort);
-        return ResponseEntity.ok(missingList);
-    }
-    */
-
-    @GetMapping
-    public ResponseEntity<List<MissingDTO>> getMissingList(@RequestParam(required = false) String searchQuery, @RequestParam(defaultValue = "latest") String sortType) {
+    public ResponseEntity<List<MissingDTO>> getMissingList(@RequestParam(defaultValue = "") String searchInput, @RequestParam(defaultValue = "latest") String sortType) {
         Sort sort;
         if ("oldest".equals(sortType)) {
             sort = Sort.by(Sort.Direction.ASC, "createdAt");
         } else {
             sort = Sort.by(Sort.Direction.DESC, "createdAt");
         }
-        List<MissingDTO> missingList = missingService.getMissingList(searchQuery, sort);
+        List<MissingDTO> missingList = missingService.getMissingList(searchInput, sort);
         return ResponseEntity.ok(missingList);
     }
 
