@@ -20,7 +20,7 @@ public class MissingService {
     private final UserRepository userRepository;
     private final NotificationService notificationService;
 
-    public List<MissingDTO> getMissingList(Sort sort) {
+    public List<MissingDTO> getMissingList(String searchQuery, Sort sort) {
         return missingRepository.findAll(sort).stream()
                 .map(MissingDTO::from)
                 .collect(Collectors.toList());
